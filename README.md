@@ -2,7 +2,7 @@
 
 ![Capa do Projeto](assets/cover.jpg)
 
-**Midnight Club: Los Angeles - Recomp** é um projeto independente focado em trazer o clássico do Xbox 360 nativamente para o PC através de **Recompilação Estática**. Baseado na tecnologia do [ReXGlue SDK](https://github.com/florinp93/hells-gate-recomp) (usado no port do *Dante's Inferno*), este projeto traduz os binários PowerPC do jogo original diretamente para C++ (x64) nativo.
+**Midnight Club: Los Angeles - Recomp** é um projeto independente focado em trazer o clássico do Xbox 360 nativamente para o PC através de **Recompilação Estática**. Utilizamos como fundação e tecnologia base o excelente projeto [**Hells Gate (Dante's Inferno Recomp)**](https://github.com/florinp93/hells-gate-recomp) desenvolvido por @florinp93, este projeto traduz os binários PowerPC do jogo original diretamente para C++ (x64) nativo.
 
 ---
 
@@ -82,4 +82,5 @@ Este projeto só foi possível graças às seguintes ferramentas open-source:
 - **[Ghidra](https://github.com/nationalsecurityagency/ghidra)** - Engenharia reversa.
 
 *Aviso legal: Este projeto não contém nenhum código proprietário, assets originais ou arquivos .iso. Os usuários devem fornecer sua própria cópia legalmente adquirida do jogo.*
+
 
