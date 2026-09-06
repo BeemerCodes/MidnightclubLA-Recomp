@@ -6,19 +6,19 @@
 
 ---
 
-## 🏁 O que foi feito?
+## O que foi feito?
 
 Este não é um emulador tradicional. O código original do jogo foi re-compilado para rodar nativamente no Windows utilizando a API DirectX 12. 
 
 Para tornar a experiência a mais "plug and play" possível para os jogadores, criamos um ecossistema completo:
 - **Launcher WPF Customizado**: Uma interface limpa, sem a necessidade de comandos de terminal ou edição de arquivos de configuração.
 - **Extração Automática (extract-xiso)**: A ferramenta extract-xiso foi embutida no projeto. O usuário apenas aponta o arquivo .iso original do jogo, e o Launcher cuida da extração do disco e da criação dos diretórios corretamente de forma visual.
-- **Opções Gráficas Integradas**: Suporte imediato a renderização em 4K (Escala 2x/4x) e Anti-Aliasing (FXAA) embutido no Launcher.
+- **Opções Gráficas Integradas**: Suporte imediato a renderização em 2K e Anti-Aliasing (FXAA) embutido no Launcher.
 - **Portabilidade Total**: Sem instaladores complexos. Apenas um .zip com o Launcher e os binários, totalmente portátil. Sistema prático para criar atalhos no Menu Iniciar e na Área de Trabalho com 1 clique.
 
 ---
 
-## 🎮 Como Jogar (Para Usuários)
+## Como Jogar
 
 **Requisitos:** 
 - O arquivo .iso original do Midnight Club: Los Angeles (Xbox 360).
@@ -33,11 +33,11 @@ Para tornar a experiência a mais "plug and play" possível para os jogadores, c
 6. *(Opcional)* Clique em **Criar Atalhos** para adicionar o jogo à sua Área de Trabalho.
 7. Vá na aba **JOGAR**, selecione a resolução desejada e clique em **PLAY**!
 
-> ⚠️ **Aviso de Performance:** É altamente recomendado que você utilize uma ferramenta externa (como o Painel da NVIDIA ou o RTSS) para **travar o FPS do jogo em 60**. Como o jogo original rodava a 30 FPS, isso evita instabilidades físicas no motor do jogo.
+ **Aviso de Performance:** É altamente recomendado que você utilize uma ferramenta externa (como o Painel da NVIDIA ou o RTSS) para **travar o FPS do jogo em 60**. Como o jogo original rodava a 30 FPS, isso evita instabilidades físicas no motor do jogo.
 
 ---
 
-## 🛠️ Como Compilar (Para Desenvolvedores)
+## Como Compilar
 
 Se você quiser contribuir ou compilar o projeto do zero a partir do código-fonte:
 
@@ -64,7 +64,7 @@ cmake --build out\build\win-amd64-release
 
 ---
 
-## 🤖 Sobre o Desenvolvimento e Transparência
+##  Sobre o Desenvolvimento e Transparência
 
 Gostaríamos de ser totalmente transparentes sobre a criação deste projeto:
 - **Base do Código:** Este port utilizou como fundação o repositório original do projeto **Hells Gate** (Dante's Inferno). Adaptamos a infraestrutura do ReXGlue desenvolvida lá para suportar o Midnight Club LA.
@@ -72,7 +72,7 @@ Gostaríamos de ser totalmente transparentes sobre a criação deste projeto:
 - **Engenharia Reversa:** A única exceção ao uso de IA foi a Engenharia Reversa pura. Foi necessária a intervenção e análise humana extensa para resolver problemas complexos de otimização da engine e crashes recorrentes que impediam o funcionamento estável do título na nossa base.
 
 ---
-## 📚 Ferramentas Utilizadas & Créditos
+##  Ferramentas Utilizadas & Créditos
 
 Este projeto só foi possível graças às seguintes ferramentas open-source:
 
