@@ -64,6 +64,14 @@ cmake --build out\build\win-amd64-release
 
 ---
 
+## 🤖 Sobre o Desenvolvimento e Transparência
+
+Gostaríamos de ser totalmente transparentes sobre a criação deste projeto:
+- **Base do Código:** Este port utilizou como fundação o repositório original do projeto **Hells Gate** (Dante's Inferno). Adaptamos a infraestrutura do ReXGlue desenvolvida lá para suportar o Midnight Club LA.
+- **Uso de Inteligência Artificial:** Praticamente todo o fluxo de desenvolvimento do ecossistema moderno do jogo (como o Launcher WPF, scripts de automação, refatoração de código e design da interface) foi desenvolvido com auxílio pesado de Inteligência Artificial. 
+- **Engenharia Reversa:** A única exceção ao uso de IA foi a Engenharia Reversa pura. Foi necessária a intervenção e análise humana extensa para resolver problemas complexos de otimização da engine e crashes recorrentes que impediam o funcionamento estável do título na nossa base.
+
+---
 ## 📚 Ferramentas Utilizadas & Créditos
 
 Este projeto só foi possível graças às seguintes ferramentas open-source:
@@ -74,3 +82,4 @@ Este projeto só foi possível graças às seguintes ferramentas open-source:
 - **[Ghidra](https://github.com/nationalsecurityagency/ghidra)** - Engenharia reversa.
 
 *Aviso legal: Este projeto não contém nenhum código proprietário, assets originais ou arquivos .iso. Os usuários devem fornecer sua própria cópia legalmente adquirida do jogo.*
+
