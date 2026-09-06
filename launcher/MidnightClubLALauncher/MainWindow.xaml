@@ -1,0 +1,256 @@
+﻿ <Window x:Class="MidnightClubLA.Launcher.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Midnight Club LA Recomp"
+        Height="520" Width="780"
+        MinHeight="520" MinWidth="780"
+        ResizeMode="CanMinimize"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource BackgroundDark}"
+        Icon="pack://application:,,,/icon.ico">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <!-- Left panel: cover art -->
+            <ColumnDefinition Width="346" />
+            <!-- Right panel: tabs -->
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <!--   LEFT: Cover art   -->
+        <Border Grid.Column="0" Background="#0D0D0D">
+            <Image x:Name="CoverImage"
+                   Stretch="UniformToFill"
+                   VerticalAlignment="Stretch"
+                   HorizontalAlignment="Stretch" />
+        </Border>
+
+        <!--   RIGHT: Tab panel   -->
+        <Border Grid.Column="1"
+                BorderBrush="{StaticResource BorderBrush}"
+                BorderThickness="2,0,0,0"
+                Background="{StaticResource BackgroundDark}">
+
+            <TabControl x:Name="MainTabControl" Margin="12,10,12,10">
+
+                <!--   TAB: JOGAR   -->
+                <TabItem Header="JOGAR">
+                    <Grid Margin="12,10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <!-- Title -->
+                        <TextBlock Grid.Row="0"
+                                   Text="MIDNIGHT CLUB LA"
+                                   FontSize="20" FontWeight="Bold"
+                                   Foreground="{StaticResource AccentBrush}"
+                                   Margin="0,0,0,4" />
+
+                        <!-- Status line -->
+                        <TextBlock x:Name="PlayStatusText"
+                                   Grid.Row="1"
+                                   Text="Verificando arquivos..."
+                                   FontSize="13"
+                                   Opacity="0.85"
+                                   Margin="0,0,0,12" />
+
+                        <!-- Options + play -->
+                        <StackPanel Grid.Row="2" VerticalAlignment="Center">
+
+                            <GroupBox Header="Resolucao">
+                                <StackPanel Margin="6,4">
+                                    <RadioButton x:Name="RadioNative"
+                                                 Content="Nativa (720p Xbox 360)"
+                                                 GroupName="ResolucaonGroup"
+                                                 FontWeight="Normal"
+                                                 Foreground="{StaticResource TextBrush}" />
+                                    <RadioButton x:Name="Radio2x"
+                                                 Content="2x - 1440p / 4K - Recomendado"
+                                                 GroupName="ResolucaonGroup"
+                                                 IsChecked="True"
+                                                 FontWeight="Normal"
+                                                 Foreground="{StaticResource TextBrush}" />
+                                </StackPanel>
+                            </GroupBox>
+
+                            <GroupBox Header="Anti-Aliasing" Margin="0,0,0,10">
+                                <StackPanel Margin="6,4">
+                                    <CheckBox x:Name="FxaaCheck"
+                                              Content="FXAA - Recomendado"
+                                              IsChecked="True"
+                                              FontWeight="Normal"
+                                              Foreground="{StaticResource TextBrush}" />
+                                </StackPanel>
+                            </GroupBox>
+
+                            <!-- PLAY button -->
+                            <Button x:Name="PlayButton"
+                                    Content=" > PLAY"
+                                    FontSize="28"
+                                    FontWeight="Bold"
+                                    Padding="20,12"
+                                    Width="220"
+                                    Height="70"
+                                    HorizontalAlignment="Left"
+                                    Click="PlayButton_Click" />
+
+                            <!-- Note -->
+                            <TextBlock x:Name="PlayNoteText"
+                                       Text=""
+                                       FontSize="11"
+                                       Opacity="0.65"
+                                       TextWrapping="Wrap"
+                                       Margin="0,8,0,0" />
+                        </StackPanel>
+
+                        <!-- FPS warning -->
+                        <Border Grid.Row="3"
+                                Background="#1A1A1A"
+                                BorderBrush="#444444"
+                                BorderThickness="1"
+                                CornerRadius="3"
+                                Padding="8,5"
+                                Margin="0,8,0,0">
+                            <TextBlock Text="  É recomendado travar o fps em 60 para evitar travamentos."
+                                       FontSize="12" FontWeight="Bold" Foreground="#CCCCCC" TextWrapping="Wrap" />
+                        </Border>
+
+                        <!-- Version / exit row -->
+                        <Grid Grid.Row="4" Margin="0,10,0,0">
+                            <TextBlock x:Name="VersionText"
+                                       Text="v1.0.0"
+                                       FontSize="11"
+                                       Opacity="0.5"
+                                       VerticalAlignment="Center" />
+                            <Button Content="SAIR"
+                                    FontSize="12"
+                                    Padding="10,4"
+                                    Width="80"
+                                    HorizontalAlignment="Right"
+                                    Click="ExitButton_Click" />
+                        </Grid>
+                    </Grid>
+                </TabItem>
+
+                <!--   TAB: CONFIGURACOES   -->
+                <TabItem Header="CONFIG">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="0">
+                        <StackPanel Margin="12,10">
+
+                            <TextBlock Text="Extracao do Jogo"
+                                       FontSize="16" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       Margin="0,0,0,10" />
+
+                            <TextBlock Text="Selecione o ISO do Xbox 360 para extrair os arquivos do jogo:"
+                                       FontSize="12" Opacity="0.85" TextWrapping="Wrap"
+                                       Margin="0,0,0,8" />
+
+                            <!-- ISO picker row -->
+                            <Grid Margin="0,0,0,8">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="IsoPathBox"
+                                         Grid.Column="0"
+                                         IsReadOnly="True"
+                                         Text="(nenhum arquivo selecionado)"
+                                         VerticalContentAlignment="Center" />
+                                <Button Grid.Column="1"
+                                        Content="Procurar..."
+                                        Width="90"
+                                        Margin="6,0,0,0"
+                                        Click="BrowseIso_Click" />
+                            </Grid>
+
+                            <!-- Extract / download xiso row -->
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button x:Name="ExtractButton"
+                                        Content="Extrair Jogo"
+                                        Width="120"
+                                        Margin="0,0,10,0"
+                                        IsEnabled="False"
+                                        Click="ExtractButton_Click" />
+                            </StackPanel>
+
+                            <!-- Extraction progress -->
+                            <ProgressBar x:Name="ExtractProgress"
+                                         Minimum="0" Maximum="100" Value="0"
+                                         Visibility="Collapsed"
+                                         Margin="0,0,0,6" />
+
+                            <!-- Status text -->
+                            <TextBox x:Name="ExtractionStatusText"
+                                     IsReadOnly="True"
+                                     TextWrapping="Wrap"
+                                     MinHeight="80"
+                                     MaxHeight="180"
+                                     VerticalScrollBarVisibility="Auto"
+                                     FontFamily="Consolas"
+                                     FontSize="11"
+                                     Padding="8" />
+                            <TextBlock Text="Atalhos do Sistema"
+                                       FontSize="16" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       Margin="0,20,0,10" />
+                            <TextBlock Text="Adicione ou remova atalhos do jogo na Area de Trabalho e no Menu Iniciar."
+                                       FontSize="12" Opacity="0.85" TextWrapping="Wrap"
+                                       Margin="0,0,0,8" />
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Criar Atalhos" Width="120" Margin="0,0,10,0" Click="CreateShortcuts_Click" />
+                                <Button Content="Remover Atalhos" Width="130" Click="RemoveShortcuts_Click" />
+                            </StackPanel>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <!--   TAB: SOBRE   -->
+                <TabItem Header="SOBRE">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                        <StackPanel Margin="12,10">
+                            <TextBlock Text="Midnight Club LA Recomp"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       Margin="0,0,0,8" />
+                            <TextBlock TextWrapping="Wrap" FontSize="13" Margin="0,0,0,10"
+                                       Text="Projeto independente de port do Midnight Club Los Angeles para PC, baseado no projeto Hells Gate Recomp:" />
+                            <TextBlock TextWrapping="Wrap" FontSize="13" Margin="0,0,0,15" Foreground="#CCCCCC"
+                                       Text="https://github.com/florinp93/hells-gate-recomp" />
+
+                            <TextBlock Text="Ferramentas Usadas:" FontSize="13" FontWeight="Bold"
+                                       Foreground="{StaticResource AccentBrush}"
+                                       Margin="0,0,0,6" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,4"
+                                       Text="  ReXGlue v0.10.0" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,4" Foreground="#CCCCCC"
+                                       Text="https://github.com/florinp93/rexglue-sdk" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,8,0,4"
+                                       Text="  Ghidra" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,4" Foreground="#CCCCCC"
+                                       Text="https://github.com/nationalsecurityagency/ghidra" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,8,0,4"
+                                       Text="  extract-xiso" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,4" Foreground="#CCCCCC"
+                                       Text="https://github.com/XboxDev/extract-xiso/releases" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,8,0,4"
+                                       Text="  XEXLoaderWV" />
+                            <TextBlock TextWrapping="Wrap" FontSize="12" Margin="0,0,0,4" Foreground="#CCCCCC"
+                                       Text="https://github.com/zeroKilo/XEXLoaderWV/releases/tag/12.1.2" />
+                            
+                            
+</StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+            </TabControl>
+        </Border>
+    </Grid>
+</Window>
+
+
