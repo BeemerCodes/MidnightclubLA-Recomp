@@ -20,6 +20,7 @@ namespace MidnightClubLA.Launcher
             " --texture_cache_memory_limit_soft_lifetime=5" +
             " --d3d12_host_vsync=false" +
             " --clear_memory_page_state=false" +
+            " --render_target_path_d3d12=rov" +
             " --log_level=off";
 
         private GameConfig _config;
