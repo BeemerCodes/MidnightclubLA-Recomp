@@ -1,4 +1,4 @@
-# midnight_club_la - ReXGlue Recompiled Project
+﻿# midnight_club_la - ReXGlue Recompiled Project
 #
 # SDK boilerplate lives in generated/rexglue.cmake.
 
@@ -18,6 +18,7 @@ include(generated/rexglue.cmake)
 # Sources
 set(MIDNIGHTCLUBLA_SOURCES
     src/main.cpp
+    src/midnight_club_la.rc
 )
 
 if(WIN32)
@@ -41,4 +42,6 @@ rexglue_setup_target(midnight_club_la)
 target_include_directories(midnight_club_la PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/rexglue-sdk/thirdparty/imgui"
 )
+
+
 
