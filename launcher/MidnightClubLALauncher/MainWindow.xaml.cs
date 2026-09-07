@@ -201,6 +201,24 @@ namespace MidnightClubLA.Launcher
 
             SaveConfig();
 
+            // FIX v1.1.0: Renomear arquivos .bik para evitar crashes na introdução e cutscenes FMV
+            try
+            {
+                string gameDir = System.IO.Path.Combine(PathHelper.GetRepositoryRoot(), "game");
+                if (System.IO.Directory.Exists(gameDir))
+                {
+                    string[] bikFiles = System.IO.Directory.GetFiles(gameDir, "*.bik", System.IO.SearchOption.AllDirectories);
+                    foreach (var bik in bikFiles)
+                    {
+                        System.IO.File.Move(bik, bik + ".bak");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ignorar erros de renomeio, arquivos podem estar em uso ou já renomeados
+            }
+
             string workDir  = PathHelper.GetRepositoryRoot();
             string arguments = BuildArguments();
 
