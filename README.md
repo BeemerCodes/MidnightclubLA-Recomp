@@ -10,7 +10,7 @@
 
 <br />
 
-<img src="./assets/cover.png" alt="Midnight Club: Los Angeles - Recompiled" width="100%" />
+<img src="./assets/cover.png" alt="Midnight Club: Los Angeles - Recompiled" width="50%" />
 
 <br /><br />
 
