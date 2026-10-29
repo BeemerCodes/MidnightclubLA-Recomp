@@ -4,37 +4,17 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;   // OpenFileDialog
+using System.Windows.Controls;
+using System.Windows.Forms; // OpenFileDialog
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Imaging;
 
 namespace MidnightClubLA.Launcher
 {
     public partial class MainWindow : Window
     {
-        // ───────── fixed command-line flags ─────────
-        private const string FixedArgs =
-            "--mcla_ptbr=true" +
-            " --mcla_fps=120" +
-            " --mcla_intro=normal" +
-            " --vsync=false" +
-            " --fullscreen=true" +
-            " --hdr=off" +
-            " --mcla_render_markers=false" +
-            " --mcla_anti_aliasing=off" +
-            " --mcla_msaa=false" +
-            " --readback_resolve=none" +
-            " --edram_tiles=2048" +
-            " --mcla_single_tile=false" +
-            " --mcla_motion_blur=false" +
-            " --mcla_fullscreen_blur=false" +
-            " --mcla_depth_of_field=false" +
-            " --mcla_fast_car_shadows=true" +
-            " --mcla_foliage_shadows=false" +
-            " --mcla_fence_yield=true" +
-            " --mcla_cache_flush=fence" +
-            " --clear_memory_page_state=false" +
-            " --render_target_path_d3d12=rtv";
-
         private GameConfig _config;
         private bool _gameRunning;
         private bool _extracting;
@@ -89,13 +69,29 @@ namespace MidnightClubLA.Launcher
         private void PopulateControls()
         {
             // Resolution
-            if (_config.ResolutionScale >= 2)
-                Radio2x.IsChecked = true;
+            int scale = _config.ResolutionScale;
+            if (scale == 1)
+                Radio1x.IsChecked = true;
+            else if (scale >= 3)
+                Radio3x.IsChecked = true;
             else
-                RadioNative.IsChecked = true;
+                Radio2x.IsChecked = true;
 
-            // FXAA
-            FxaaCheck.IsChecked = _config.UseFxaa;
+            // FPS
+            if (_config.TargetFps == 120 || _config.TargetFps == 0)
+                RadioFps120.IsChecked = true;
+            else
+                RadioFps60.IsChecked = true;
+
+            // Checkboxes / Flags
+            FxaaCheck.IsChecked        = _config.UseFxaa;
+            FullscreenCheck.IsChecked  = _config.Fullscreen;
+            VsyncCheck.IsChecked       = _config.Vsync;
+            PtBrCheck.IsChecked        = _config.PtBr;
+            IntroCheck.IsChecked       = _config.EnableIntro;
+            FastShadowsCheck.IsChecked = _config.FastCarShadows;
+            EdramCheck.IsChecked       = _config.EdramTiles;
+            FenceCheck.IsChecked       = _config.GpuFence;
 
             // ISO path
             if (!string.IsNullOrWhiteSpace(_config.LastIsoPath) &&
@@ -117,18 +113,21 @@ namespace MidnightClubLA.Launcher
 
             if (exeExists && dataExists)
             {
-                PlayStatusText.Text = "✔  Jogo pronto para jogar.";
+                PlayStatusText.Text = "Jogo pronto para iniciar.";
+                StatusDot.Fill = new SolidColorBrush(Color.FromRgb(76, 175, 80)); // Green
                 PlayButton.IsEnabled = true;
             }
             else if (!exeExists)
             {
-                PlayStatusText.Text = "✘  midnight_club_la.exe não encontrado. Compile o projeto primeiro.";
+                PlayStatusText.Text = "Executável (midnight_club_la.exe) não encontrado.";
+                StatusDot.Fill = new SolidColorBrush(Color.FromRgb(229, 57, 53)); // Red
                 PlayButton.IsEnabled = false;
             }
             else
             {
-                PlayStatusText.Text = "✘  Arquivos do jogo não encontrados. Use CONFIG → Extrair Jogo.";
-                PlayButton.IsEnabled = true; // allow attempt; error shown at launch
+                PlayStatusText.Text = "Arquivos não encontrados. Extraia a ISO na aba Instalação.";
+                StatusDot.Fill = new SolidColorBrush(Color.FromRgb(255, 152, 0)); // Orange
+                PlayButton.IsEnabled = true;
             }
         }
 
@@ -139,22 +138,21 @@ namespace MidnightClubLA.Launcher
             {
                 ExtractionStatusText.Text =
                     "extract-xiso.exe não encontrado em:\n" + xisoPath +
-                    "\n\nClique em \"Baixar extract-xiso\" para obter a ferramenta.";
+                    "\n\nCertifique-se de manter o utilitário na pasta tools\\.";
             }
             else
             {
                 ExtractionStatusText.Text =
-                    "extract-xiso encontrado em:\n" + xisoPath +
-                    "\n\nSelecione um ISO e clique em Extrair Jogo.";
+                    "extract-xiso pronto em:\n" + xisoPath +
+                    "\n\nSelecione um arquivo .iso e clique em Extrair Jogo.";
             }
 
-            // If game already extracted, show that status
             string xexPath = Path.Combine(PathHelper.GetGameDataPath(), "default.xex");
             if (File.Exists(xexPath))
             {
                 ExtractionStatusText.Text =
-                    "✔  Jogo já extraído (game\\default.xex encontrado).\n\n" +
-                    "Você pode re-extrair se quiser substituir os arquivos.";
+                    "✔ Jogo já extraído (game\\default.xex presente).\n\n" +
+                    "Você pode re-extrair a qualquer momento caso precise reinstalar os arquivos.";
             }
         }
 
@@ -164,28 +162,149 @@ namespace MidnightClubLA.Launcher
 
         private void SaveConfig()
         {
-            _config.ResolutionScale = (Radio2x.IsChecked == true) ? 2 : 1;
+            if (Radio1x.IsChecked == true)
+                _config.ResolutionScale = 1;
+            else if (Radio3x.IsChecked == true)
+                _config.ResolutionScale = 3;
+            else
+                _config.ResolutionScale = 2;
+
+            _config.TargetFps       = (RadioFps120.IsChecked == true) ? 120 : 60;
             _config.UseFxaa         = (FxaaCheck.IsChecked == true);
+            _config.Fullscreen      = (FullscreenCheck.IsChecked == true);
+            _config.Vsync           = (VsyncCheck.IsChecked == true);
+            _config.PtBr            = (PtBrCheck.IsChecked == true);
+            _config.EnableIntro     = (IntroCheck.IsChecked == true);
+            _config.FastCarShadows  = (FastShadowsCheck.IsChecked == true);
+            _config.EdramTiles      = (EdramCheck.IsChecked == true);
+            _config.GpuFence        = (FenceCheck.IsChecked == true);
+
             _config.Save();
         }
 
         // ─────────────────────────────────────────────
-        //  Build launch arguments
+        //  Build launch arguments from checkboxes
         // ─────────────────────────────────────────────
 
         private string BuildArguments()
         {
-            var sb = new StringBuilder(FixedArgs);
+            var sb = new StringBuilder();
 
-            if (Radio2x.IsChecked == true)
-                sb.Append(" --resolution_scale=2");
-            else
-                sb.Append(" --resolution_scale=1");
+            // PT-BR
+            sb.Append(PtBrCheck.IsChecked == true ? "--mcla_ptbr=true" : "--mcla_ptbr=false");
 
-            if (FxaaCheck.IsChecked == true)
-                sb.Append(" --mcla_anti_aliasing=fxaa");
+            // FPS
+            int fps = (RadioFps120.IsChecked == true) ? 120 : 60;
+            sb.AppendFormat(" --mcla_fps={0}", fps);
+
+            // Resolution scale
+            int scale = 2;
+            if (Radio1x.IsChecked == true) scale = 1;
+            else if (Radio3x.IsChecked == true) scale = 3;
+            sb.AppendFormat(" --resolution_scale={0}", scale);
+
+            // Intro
+            sb.Append(IntroCheck.IsChecked == true ? " --mcla_intro=normal" : " --mcla_intro=fast");
+
+            // Window / Fullscreen
+            sb.Append(FullscreenCheck.IsChecked == true ? " --fullscreen=true" : " --fullscreen=false");
+
+            // VSync
+            sb.Append(VsyncCheck.IsChecked == true ? " --vsync=true" : " --vsync=false");
+
+            // Anti-Aliasing
+            sb.Append(FxaaCheck.IsChecked == true ? " --mcla_anti_aliasing=fxaa" : " --mcla_anti_aliasing=off");
+
+            // Shadows
+            sb.Append(FastShadowsCheck.IsChecked == true ? " --mcla_fast_car_shadows=true" : " --mcla_fast_car_shadows=false");
+
+            // eDRAM
+            if (EdramCheck.IsChecked == true)
+                sb.Append(" --edram_tiles=2048");
+
+            // Fence / Cache
+            if (FenceCheck.IsChecked == true)
+                sb.Append(" --mcla_cache_flush=fence --mcla_fence_yield=true");
+
+            // Native DirectX 12 fixed pipeline flags
+            sb.Append(" --render_target_path_d3d12=rtv");
+            sb.Append(" --clear_memory_page_state=false");
+            sb.Append(" --readback_resolve=none");
+            sb.Append(" --mcla_render_markers=false");
+            sb.Append(" --mcla_msaa=false");
+            sb.Append(" --mcla_motion_blur=false");
+            sb.Append(" --mcla_fullscreen_blur=false");
+            sb.Append(" --mcla_depth_of_field=false");
+            sb.Append(" --mcla_foliage_shadows=false");
 
             return sb.ToString();
+        }
+
+        // ─────────────────────────────────────────────
+        //  Stage / Tab Navigation & Fluid Animations
+        // ─────────────────────────────────────────────
+
+        private void MainTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (MainTabControl == null) return;
+
+            if (MainTabControl.SelectedItem == TabJogar)
+                SwitchStage(PanelJogar);
+            else if (MainTabControl.SelectedItem == TabGraficos)
+                SwitchStage(PanelGraficos);
+            else if (MainTabControl.SelectedItem == TabInstalacao)
+                SwitchStage(PanelInstalacao);
+            else if (MainTabControl.SelectedItem == TabSobre)
+                SwitchStage(PanelSobre);
+        }
+
+        private void SwitchStage(FrameworkElement panelToShow)
+        {
+            if (PanelJogar == null) return;
+
+            PanelJogar.Visibility = Visibility.Collapsed;
+            PanelGraficos.Visibility = Visibility.Collapsed;
+            PanelInstalacao.Visibility = Visibility.Collapsed;
+            PanelSobre.Visibility = Visibility.Collapsed;
+
+            if (panelToShow != null)
+            {
+                panelToShow.Visibility = Visibility.Visible;
+
+                var transform = new TranslateTransform(0, 8);
+                panelToShow.RenderTransform = transform;
+                panelToShow.Opacity = 0;
+
+                var animOpacity = new DoubleAnimation(0.0, 1.0, TimeSpan.FromMilliseconds(200));
+                animOpacity.DecelerationRatio = 0.3;
+
+                var animTranslate = new DoubleAnimation(8.0, 0.0, TimeSpan.FromMilliseconds(200));
+                animTranslate.DecelerationRatio = 0.3;
+
+                panelToShow.BeginAnimation(UIElement.OpacityProperty, animOpacity);
+                transform.BeginAnimation(TranslateTransform.YProperty, animTranslate);
+            }
+        }
+
+        // ─────────────────────────────────────────────
+        //  Custom Title Bar Events
+        // ─────────────────────────────────────────────
+
+        private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
+        }
+
+        private void MinimizeButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.WindowState = WindowState.Minimized;
+        }
+
+        private void ExitButton_Click(object sender, RoutedEventArgs e)
+        {
+            SaveConfig();
+            Close();
         }
 
         // ─────────────────────────────────────────────
@@ -231,14 +350,12 @@ namespace MidnightClubLA.Launcher
                     }
                 }
             }
-            catch (Exception)
-            {
-            }
+            catch (Exception) { }
 
-            string workDir  = PathHelper.GetRepositoryRoot();
+            string workDir   = PathHelper.GetRepositoryRoot();
             string arguments = BuildArguments();
 
-            PlayNoteText.Text = "Iniciando o jogo...";
+            PlayNoteText.Text = "Iniciando processo...";
             PlayButton.IsEnabled = false;
             _gameRunning = true;
 
@@ -282,16 +399,6 @@ namespace MidnightClubLA.Launcher
         }
 
         // ─────────────────────────────────────────────
-        //  EXIT button
-        // ─────────────────────────────────────────────
-
-        private void ExitButton_Click(object sender, RoutedEventArgs e)
-        {
-            SaveConfig();
-            Close();
-        }
-
-        // ─────────────────────────────────────────────
         //  ISO browse
         // ─────────────────────────────────────────────
 
@@ -323,8 +430,8 @@ namespace MidnightClubLA.Launcher
         {
             if (_extracting) return;
 
-            string isoPath  = IsoPathBox.Text.Trim();
-            string xisoExe  = PathHelper.GetExtractXisoPath();
+            string isoPath   = IsoPathBox.Text.Trim();
+            string xisoExe   = PathHelper.GetExtractXisoPath();
             string outputDir = PathHelper.GetGameDataPath();
 
             if (!File.Exists(isoPath))
@@ -339,8 +446,7 @@ namespace MidnightClubLA.Launcher
             if (!File.Exists(xisoExe))
             {
                 global::System.Windows.MessageBox.Show(
-                    "extract-xiso.exe não encontrado em:\n" + xisoExe +
-                    "\n\nUse o botão \"Baixar extract-xiso\" para obter a ferramenta.",
+                    "extract-xiso.exe não encontrado em:\n" + xisoExe,
                     "extract-xiso não encontrado",
                     global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Warning);
                 return;
@@ -352,7 +458,7 @@ namespace MidnightClubLA.Launcher
             ExtractButton.IsEnabled   = false;
             ExtractProgress.Visibility = Visibility.Visible;
             ExtractProgress.IsIndeterminate = true;
-            ExtractionStatusText.Text = "Extraindo ISO... aguarde.\n(Isso pode levar alguns minutos)\n";
+            ExtractionStatusText.Text = "Extraindo ISO... aguarde.\n(Esse processo pode levar alguns minutos dependendo da velocidade do seu disco)\n";
 
             SaveConfig();
 
@@ -365,9 +471,8 @@ namespace MidnightClubLA.Launcher
                 try
                 {
                     if (!Directory.Exists(outputDir))
-                    {
                         Directory.CreateDirectory(outputDir);
-                    }
+
                     var psi = new ProcessStartInfo
                     {
                         FileName               = xisoExe,
@@ -443,15 +548,15 @@ namespace MidnightClubLA.Launcher
                         }
                         catch { }
 
-                        ExtractionStatusText.Text = "Extracao concluida com sucesso!";
+                        ExtractionStatusText.Text = "Extração concluída com sucesso!";
                         ExtractProgress.Value = 100;
-                        global::System.Windows.MessageBox.Show("O jogo foi extraido com sucesso e os diretorios foram gerados. Voce ja pode jogar!", "Extracao Concluida", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Information);
+                        global::System.Windows.MessageBox.Show("O jogo foi extraído com sucesso e a estrutura de pastas foi gerada. Você já pode jogar!", "Extração Concluída", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Information);
                         RefreshPlayStatus();
                     }
                     else
                     {
-                        ExtractionStatusText.Text = "Falha ao extrair (codigo " + exitCode.ToString() + ")";
-                        global::System.Windows.MessageBox.Show("Falha ao extrair (Codigo " + exitCode.ToString() + "). Verifique a ISO.", "Erro de Extracao", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Error);
+                        ExtractionStatusText.Text = "Falha ao extrair (código " + exitCode.ToString() + ")";
+                        global::System.Windows.MessageBox.Show("Falha ao extrair (Código " + exitCode.ToString() + "). Verifique a integridade da ISO.", "Erro de Extração", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Error);
                     }
 
                     ExtractButton.IsEnabled = true;
@@ -460,14 +565,8 @@ namespace MidnightClubLA.Launcher
         }
 
         // ─────────────────────────────────────────────
-        //  Download extract-xiso
-        // ─────────────────────────────────────────────
-
-        // ---------------------------------------------
         //  Shortcuts
-        // ---------------------------------------------
-
-        
+        // ─────────────────────────────────────────────
 
         private void CreateShortcuts_Click(object sender, RoutedEventArgs e)
         {
@@ -478,11 +577,11 @@ namespace MidnightClubLA.Launcher
 
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 string startMenu = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-                
+
                 CreateShortcut(System.IO.Path.Combine(desktop, "Midnight Club LA Recomp.lnk"), exePath, iconPath);
                 CreateShortcut(System.IO.Path.Combine(startMenu, "Midnight Club LA Recomp.lnk"), exePath, iconPath);
-                
-                global::System.Windows.MessageBox.Show("Atalhos criados com sucesso na Area de Trabalho e no Menu Iniciar!", "Sucesso", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Information);
+
+                global::System.Windows.MessageBox.Show("Atalhos criados com sucesso na Área de Trabalho e no Menu Iniciar!", "Sucesso", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
@@ -496,13 +595,13 @@ namespace MidnightClubLA.Launcher
             {
                 string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
                 string startMenu = Environment.GetFolderPath(Environment.SpecialFolder.Programs);
-                
+
                 string desktopLink = System.IO.Path.Combine(desktop, "Midnight Club LA Recomp.lnk");
                 string startMenuLink = System.IO.Path.Combine(startMenu, "Midnight Club LA Recomp.lnk");
-                
+
                 if (System.IO.File.Exists(desktopLink)) System.IO.File.Delete(desktopLink);
                 if (System.IO.File.Exists(startMenuLink)) System.IO.File.Delete(startMenuLink);
-                
+
                 global::System.Windows.MessageBox.Show("Atalhos removidos com sucesso!", "Sucesso", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Information);
             }
             catch (Exception ex)

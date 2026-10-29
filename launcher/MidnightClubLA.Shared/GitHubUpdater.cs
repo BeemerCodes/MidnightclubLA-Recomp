@@ -21,7 +21,12 @@ namespace MidnightClubLA
         public string Body { get; set; }
         public string HtmlUrl { get; set; }
         public bool Prerelease { get; set; }
-        public List<ReleaseAsset> Assets { get; set; } = new List<ReleaseAsset>();
+        public List<ReleaseAsset> Assets { get; set; }
+
+        public ReleaseInfo()
+        {
+            Assets = new List<ReleaseAsset>();
+        }
 
         public SemanticVersion Version
         {
@@ -106,8 +111,9 @@ namespace MidnightClubLA
                 if (i >= a.Length) return -1;
                 if (i >= b.Length) return 1;
 
-                bool aNum = int.TryParse(a[i], out int av);
-                bool bNum = int.TryParse(b[i], out int bv);
+                int av, bv;
+                bool aNum = int.TryParse(a[i], out av);
+                bool bNum = int.TryParse(b[i], out bv);
 
                 if (aNum && bNum)
                 {
@@ -234,14 +240,17 @@ namespace MidnightClubLA
                 HtmlUrl = raw.GetValueOrDefault("html_url"),
             };
 
-            if (raw.TryGetValue("prerelease", out var pre) && pre is bool b)
-                info.Prerelease = b;
+            object pre;
+            if (raw.TryGetValue("prerelease", out pre) && pre is bool)
+                info.Prerelease = (bool)pre;
 
-            if (raw.TryGetValue("assets", out var aObj) && aObj is IEnumerable assets)
+            object aObj;
+            if (raw.TryGetValue("assets", out aObj) && aObj is IEnumerable)
             {
-                foreach (var a in assets)
+                foreach (var a in (IEnumerable)aObj)
                 {
-                    if (a is Dictionary<string, object> asset)
+                    var asset = a as Dictionary<string, object>;
+                    if (asset != null)
                     {
                         info.Assets.Add(new ReleaseAsset
                         {
@@ -257,7 +266,8 @@ namespace MidnightClubLA
 
         private static string GetValueOrDefault(this Dictionary<string, object> dict, string key)
         {
-            return dict.TryGetValue(key, out var value) ? value as string : null;
+            object value;
+            return dict.TryGetValue(key, out value) ? value as string : null;
         }
     }
 }

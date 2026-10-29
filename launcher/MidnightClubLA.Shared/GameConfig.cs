@@ -68,13 +68,18 @@ namespace MidnightClubLA
 
         public string this[string key]
         {
-            get { return _values.TryGetValue(key, out var v) ? v : null; }
+            get
+            {
+                string v;
+                return _values.TryGetValue(key, out v) ? v : null;
+            }
             set { _values[key] = value ?? string.Empty; }
         }
 
         private T Get<T>(string key, T defaultValue) where T : IConvertible
         {
-            if (!_values.TryGetValue(key, out var raw) || raw == null)
+            string raw;
+            if (!_values.TryGetValue(key, out raw) || raw == null)
                 return defaultValue;
             try
             {
@@ -114,6 +119,62 @@ namespace MidnightClubLA
         {
             get { return Get("use_fxaa", true); }
             set { Set("use_fxaa", value); }
+        }
+
+        /// <summary>Target FPS (60 or 120).</summary>
+        public int TargetFps
+        {
+            get { return Get("target_fps", 60); }
+            set { Set("target_fps", value); }
+        }
+
+        /// <summary>Whether fullscreen is enabled.</summary>
+        public bool Fullscreen
+        {
+            get { return Get("fullscreen", true); }
+            set { Set("fullscreen", value); }
+        }
+
+        /// <summary>Whether V-Sync is enabled.</summary>
+        public bool Vsync
+        {
+            get { return Get("vsync", false); }
+            set { Set("vsync", value); }
+        }
+
+        /// <summary>Whether PT-BR localization is enabled.</summary>
+        public bool PtBr
+        {
+            get { return Get("ptbr", true); }
+            set { Set("ptbr", value); }
+        }
+
+        /// <summary>Whether intro cutscenes/videos play normally.</summary>
+        public bool EnableIntro
+        {
+            get { return Get("enable_intro", true); }
+            set { Set("enable_intro", value); }
+        }
+
+        /// <summary>Whether fast car shadows optimization is enabled.</summary>
+        public bool FastCarShadows
+        {
+            get { return Get("fast_car_shadows", true); }
+            set { Set("fast_car_shadows", value); }
+        }
+
+        /// <summary>Whether eDRAM 2048 tiles allocation is enabled.</summary>
+        public bool EdramTiles
+        {
+            get { return Get("edram_tiles", true); }
+            set { Set("edram_tiles", value); }
+        }
+
+        /// <summary>Whether GPU fence cache flush synchronization is enabled.</summary>
+        public bool GpuFence
+        {
+            get { return Get("gpu_fence", true); }
+            set { Set("gpu_fence", value); }
         }
 
         /// <summary>Path to the last chosen ISO file (for the extraction UI).</summary>

@@ -79,7 +79,9 @@ namespace MidnightClubLA
         /// </summary>
         public static string GetCoverImagePath()
         {
-            // Try cover.jpg first (MCLA), fall back to banner.jpg (legacy)
+            // Try cover.png first, then cover.jpg (MCLA), fall back to banner.jpg (legacy)
+            string coverPng = Path.Combine(GetRepositoryRoot(), "assets", "cover.png");
+            if (File.Exists(coverPng)) return coverPng;
             string cover = Path.Combine(GetRepositoryRoot(), "assets", "cover.jpg");
             if (File.Exists(cover)) return cover;
             return Path.Combine(ExecutableDirectory, "banner.jpg");
