@@ -1,6 +1,6 @@
 ﻿# Midnight Club: Los Angeles - PC Port (Static Recompilation)
 
-![Capa do Projeto](assets/cover.jpg)
+![Capa do Projeto](assets/cover.png)
 
 **Midnight Club: Los Angeles - Recomp** é um projeto independente focado em trazer o clássico do Xbox 360 nativamente para o PC através de **Recompilação Estática**. Utilizamos como fundação e tecnologia base o excelente projeto [**Hells Gate (Dante's Inferno Recomp)**](https://github.com/florinp93/hells-gate-recomp) desenvolvido por @florinp93, este projeto traduz os binários PowerPC do jogo original diretamente para C++ (x64) nativo.
 
