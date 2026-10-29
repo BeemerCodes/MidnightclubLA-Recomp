@@ -612,13 +612,22 @@ namespace MidnightClubLA.Launcher
 
         private void CreateShortcut(string shortcutPath, string targetPath, string iconPath)
         {
-            string psCommand = "$s=(New-Object -COM WScript.Shell).CreateShortcut('" + shortcutPath + "');$s.TargetPath='" + targetPath + "';$s.IconLocation='" + iconPath + "';$s.Save()";
-            var processInfo = new System.Diagnostics.ProcessStartInfo("powershell.exe", "-ExecutionPolicy Bypass -NoProfile -Command \"" + psCommand + "\"")
+            try
             {
-                CreateNoWindow = true,
-                UseShellExecute = false
-            };
-            System.Diagnostics.Process.Start(processInfo).WaitForExit();
+                Type shellType = Type.GetTypeFromProgID("WScript.Shell");
+                if (shellType != null)
+                {
+                    dynamic shell = Activator.CreateInstance(shellType);
+                    dynamic shortcut = shell.CreateShortcut(shortcutPath);
+                    shortcut.TargetPath = targetPath;
+                    shortcut.IconLocation = iconPath;
+                    shortcut.Save();
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine("Erro ao criar atalho: " + ex.Message);
+            }
         }
     }
 }
