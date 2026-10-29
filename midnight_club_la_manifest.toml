@@ -85,3 +85,14 @@ name = "unresolved_target_822C9DD8"
 name = "unresolved_target_8274B318"
 [entrypoint.functions.0x827A7640]
 name = "unresolved_target_827A7640"
+
+[[midasm_hook]]
+address = 0x821CCEA0
+name = "OnFiPackfileOpenMidHook"
+registers = ["r4"]
+
+[[midasm_hook]]
+address = 0x821CC620
+name = "OnFiPackfileOpenBulkMidHook"
+registers = ["r4"]
+

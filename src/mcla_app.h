@@ -1,15 +1,12 @@
+// mcla - ReXGlue Recompiled Project
+//
+// Customize your app by overriding virtual hooks from rex::ReXApp.
+
 #pragma once
 
 #include <rex/rex_app.h>
-#include <rex/cvar.h>
-#include <rex/chrono/clock.h>
-#include <rex/input/flags.h>
-#include <rex/ui/keybinds.h>
-#include <rex/graphics/graphics_system.h>
-#include <rex/logging/macros.h>
 
-#include <memory>
-#include <string>
+#include "achievement_toast.h"
 
 class MclaApp : public rex::ReXApp {
  public:
@@ -17,19 +14,43 @@ class MclaApp : public rex::ReXApp {
 
   static std::unique_ptr<rex::ui::WindowedApp> Create(
       rex::ui::WindowedAppContext& ctx) {
-    return std::unique_ptr<MclaApp>(new MclaApp(ctx, "midnight_club_la",
+    return std::unique_ptr<MclaApp>(new MclaApp(ctx, "mcla",
         PPCImageConfig));
   }
 
-  void OnPreSetup(rex::RuntimeConfig& config) override {
-    config.gpu_plugin = "xenos";
-    REXCVAR_SET(input_backend, std::string("sdl"));
+ protected:
+  void OnConfigurePaths(rex::PathConfig& paths) override;
+  std::optional<rex::PathConfig> OnFinalizePaths(
+      const rex::PathConfig& defaults,
+      std::function<void(rex::PathConfig)> resume) override;
+  void OnPreSetup(rex::RuntimeConfig& config) override;
+  void OnPostSetup() override;
+  void OnCreateDialogs(rex::ui::ImGuiDrawer* drawer) override;
+  void OnShutdown() override;
+  void OnPreLaunchModule() override;
+  // The shader storage: the pack's import is done before the module starts (OnPreLaunchModule),
+  // the stamp written once the SDK created the stored pipelines, and a preparation run
+  // (--mcla_prepare_shaders) quits here instead of starting (src/shader_prepare.cpp).
+  void OnPostLaunchModule(rex::system::XThread* thread) override;
+  // Saves what was changed in the pause menu's settings, in case the window is
+  // closed while one of its submenus is open (src/settings_menu.cpp).
+  bool OnWindowCloseRequested() override;
+
+  // Achievement pop-ups, registered with the ImGui drawer only while one is
+  // on screen (src/achievement_toast.h). The SDK's toast is registered for the
+  // whole session, which made the presenter repaint at the monitor's refresh
+  // rate whatever the frame cap.
+  std::unique_ptr<rex::ui::AchievementNotificationDialog> CreateAchievementNotificationDialog()
+      override {
+    return mcla::MakeOnDemandToast(rex::ReXApp::CreateAchievementNotificationDialog(),
+                                   imgui_drawer(), app_context());
   }
 
-  void OnPostSetup() override {
-    // Hooks specific to Midnight Club LA go here
-  }
-
-  void OnShutdown() override {
-  }
+ private:
+  std::unique_ptr<rex::ui::ImGuiDialog> video_borders_;
+  void InstallCrashTrace();
+  void ConfigureFrameTiming();
+  void ApplyPcDefaults();
+  void FollowCursorSetting();
+  void StartProfilerIfRequested();
 };

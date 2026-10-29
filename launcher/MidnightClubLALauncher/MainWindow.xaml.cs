@@ -13,15 +13,27 @@ namespace MidnightClubLA.Launcher
     {
         // ───────── fixed command-line flags ─────────
         private const string FixedArgs =
-            "--game_data_root=game" +
-            " --async_shader_compilation=true" +
-            " --texture_cache_memory_limit_soft=1536" +
-            " --texture_cache_memory_limit_hard=2560" +
-            " --texture_cache_memory_limit_soft_lifetime=5" +
-            " --d3d12_host_vsync=false" +
+            "--mcla_ptbr=true" +
+            " --mcla_fps=120" +
+            " --mcla_intro=normal" +
+            " --vsync=false" +
+            " --fullscreen=true" +
+            " --hdr=off" +
+            " --mcla_render_markers=false" +
+            " --mcla_anti_aliasing=off" +
+            " --mcla_msaa=false" +
+            " --readback_resolve=none" +
+            " --edram_tiles=2048" +
+            " --mcla_single_tile=false" +
+            " --mcla_motion_blur=false" +
+            " --mcla_fullscreen_blur=false" +
+            " --mcla_depth_of_field=false" +
+            " --mcla_fast_car_shadows=true" +
+            " --mcla_foliage_shadows=false" +
+            " --mcla_fence_yield=true" +
+            " --mcla_cache_flush=fence" +
             " --clear_memory_page_state=false" +
-            " --render_target_path_d3d12=rov" +
-            " --log_level=off";
+            " --render_target_path_d3d12=rtv";
 
         private GameConfig _config;
         private bool _gameRunning;
@@ -166,10 +178,12 @@ namespace MidnightClubLA.Launcher
             var sb = new StringBuilder(FixedArgs);
 
             if (Radio2x.IsChecked == true)
-                sb.Append(" --draw_resolution_scale_x=2 --draw_resolution_scale_y=2");
+                sb.Append(" --resolution_scale=2");
+            else
+                sb.Append(" --resolution_scale=1");
 
             if (FxaaCheck.IsChecked == true)
-                sb.Append(" --swap_post_effect=fxaa");
+                sb.Append(" --mcla_anti_aliasing=fxaa");
 
             return sb.ToString();
         }
@@ -202,22 +216,23 @@ namespace MidnightClubLA.Launcher
 
             SaveConfig();
 
-            // FIX v1.1.0: Renomear arquivos .bik para evitar crashes na introdução e cutscenes FMV
+            // Garantir que vídeos .bik (intros e cutscenes) estejam restaurados e ativos
             try
             {
                 string gameDir = System.IO.Path.Combine(PathHelper.GetRepositoryRoot(), "game");
                 if (System.IO.Directory.Exists(gameDir))
                 {
-                    string[] bikFiles = System.IO.Directory.GetFiles(gameDir, "*.bik", System.IO.SearchOption.AllDirectories);
-                    foreach (var bik in bikFiles)
+                    string[] bakFiles = System.IO.Directory.GetFiles(gameDir, "*.bik.bak", System.IO.SearchOption.AllDirectories);
+                    foreach (var bak in bakFiles)
                     {
-                        System.IO.File.Move(bik, bik + ".bak");
+                        string target = bak.Substring(0, bak.Length - 4);
+                        if (!System.IO.File.Exists(target))
+                            System.IO.File.Move(bak, target);
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                // Ignorar erros de renomeio, arquivos podem estar em uso ou já renomeados
             }
 
             string workDir  = PathHelper.GetRepositoryRoot();
@@ -406,6 +421,28 @@ namespace MidnightClubLA.Launcher
 
                     if (exitCode == 0)
                     {
+                        try
+                        {
+                            string repoRoot = PathHelper.GetRepositoryRoot();
+                            string ptbrScript = Path.Combine(repoRoot, "localization", "build_ptbr.py");
+                            if (File.Exists(ptbrScript))
+                            {
+                                var ptbrPsi = new ProcessStartInfo
+                                {
+                                    FileName = "python",
+                                    Arguments = string.Format("\"{0}\" --game-root \"{1}\" --output \"{1}\"", ptbrScript, outputDir),
+                                    WorkingDirectory = repoRoot,
+                                    UseShellExecute = false,
+                                    CreateNoWindow = true,
+                                };
+                                using (var ptbrProc = Process.Start(ptbrPsi))
+                                {
+                                    if (ptbrProc != null) ptbrProc.WaitForExit(120000);
+                                }
+                            }
+                        }
+                        catch { }
+
                         ExtractionStatusText.Text = "Extracao concluida com sucesso!";
                         ExtractProgress.Value = 100;
                         global::System.Windows.MessageBox.Show("O jogo foi extraido com sucesso e os diretorios foram gerados. Voce ja pode jogar!", "Extracao Concluida", global::System.Windows.MessageBoxButton.OK, global::System.Windows.MessageBoxImage.Information);

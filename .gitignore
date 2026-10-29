@@ -18,6 +18,8 @@ generated/*/*.hpp
 
 # --- ReXGlue SDK (cloned via setup script, not tracked here) ---
 thirdparty/rexglue-sdk/
+third_party/
+backups/
 
 # --- Disc images (copyrighted, do NOT commit) ---
 disc/

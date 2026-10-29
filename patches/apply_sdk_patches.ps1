@@ -9,7 +9,7 @@
 #   - XUserFindUsers handler - prevents save load null-pointer crash
 #   - XMA decoder thread fix - prevents audio init hang
 #   - Content/save API logging
-#   - D3D12 graphics patches (ROV, presenter, texture cache, etc.)
+#   - D3D12 graphics & texture cache optimizations (RTV border clamp fix, zero forced 8-bit cache eviction, high-precision frame pacing)
 #   - Function dispatcher unresolved-call behavior
 
 param(
@@ -34,12 +34,13 @@ if (-not (Test-Path $patchFile)) {
 # Apply the patch using git apply within the SDK repo
 Write-Host "Applying SDK patches to $sdkPath ..."
 Push-Location $sdkPath
+$oldErrorAction = $ErrorActionPreference
 try {
+    $ErrorActionPreference = "Continue"
     # Check if patches are already applied by testing reverse application
     $reverseCheck = & git apply --reverse --check $patchFile 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Host "SDK patches already applied."
-        Pop-Location
         exit 0
     }
 
@@ -50,19 +51,18 @@ try {
         $applyResult = & git apply --3way $patchFile 2>&1
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Failed to apply SDK patches: $applyResult"
-            Pop-Location
             exit 1
         }
     } else {
         $applyResult = & git apply $patchFile 2>&1
         if ($LASTEXITCODE -ne 0) {
             Write-Error "Failed to apply SDK patches: $applyResult"
-            Pop-Location
             exit 1
         }
     }
     Write-Host "SDK patches applied successfully."
 }
 finally {
+    $ErrorActionPreference = $oldErrorAction
     Pop-Location
 }
